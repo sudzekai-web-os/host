@@ -1,5 +1,6 @@
-
+using Presentation.src.Extensions.LoggingBuilder;
 using Presentation.src.Extensions.ServiceCollection;
+using Presentation.src.Extensions.WebApplication;
 using Sudzekai.WebOs.Hosting;
 
 namespace Presentation
@@ -8,21 +9,24 @@ namespace Presentation
     {
         public static async Task Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+            var builder = WebApplication.CreateSlimBuilder(args);
 
             builder.AddPluginInfrastructure();
 
-            builder.Services.AddAuthentication();
-            builder.Services.AddAuthorization();
+            builder.Logging.ConfigureLogging();
 
-            builder.Services.ConfigureRateLimiting();
-
-            builder.Services.AddOpenApi();
+            builder.Services
+                .ConfigureAuthentication(builder.Configuration)
+                .ConfigureRateLimiting()
+                .ConfigureOpenApi();
 
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
+            {
                 app.MapOpenApi();
+                app.ConfigureScalarApiReference(builder.Configuration);
+            }
 
             app.UseAuthentication();
             app.UseAuthorization();

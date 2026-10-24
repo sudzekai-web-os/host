@@ -7,7 +7,7 @@ namespace Presentation.src.Extensions.ServiceCollection
 {
     internal static class ServiceCollectionAuthenticationExtensions
     {
-        public static void ConfigureAuthentication(
+        public static IServiceCollection ConfigureAuthentication(
             this IServiceCollection services, 
             IConfiguration configuration)
         {
@@ -36,6 +36,8 @@ namespace Presentation.src.Extensions.ServiceCollection
             });
 
             services.AddAuthorization();
+
+            return services;
         }
     }
 }

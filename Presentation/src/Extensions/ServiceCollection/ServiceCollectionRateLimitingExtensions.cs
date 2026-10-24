@@ -5,7 +5,7 @@ namespace Presentation.src.Extensions.ServiceCollection
 {
     internal static class ServiceCollectionRateLimitingExtensions
     {
-        public static void ConfigureRateLimiting(this IServiceCollection services)
+        public static IServiceCollection ConfigureRateLimiting(this IServiceCollection services)
         {
             services.AddRateLimiter(o =>
             {
@@ -78,6 +78,8 @@ namespace Presentation.src.Extensions.ServiceCollection
                     )
                 );
             });
+
+            return services;
         }
     }
 }
