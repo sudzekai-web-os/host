@@ -22,17 +22,14 @@ namespace Presentation
 
             var app = builder.Build();
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-                app.ConfigureScalarApiReference(builder.Configuration);
-            }
-
             app.UseAuthentication();
             app.UseAuthorization();
 
             await app.LoadPluginsAsync();
             app.AddHandlers();
+
+            if (app.Environment.IsDevelopment())
+                app.ConfigureScalarApiReference(builder.Configuration);
 
             app.Run();
         }

@@ -1,7 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 
 namespace Presentation.src.Extensions.WebApplication
@@ -10,6 +7,7 @@ namespace Presentation.src.Extensions.WebApplication
     {
         public static void ConfigureScalarApiReference(this Microsoft.AspNetCore.Builder.WebApplication app, IConfiguration configuration)
         {
+            app.MapOpenApi();
             app.MapScalarApiReference(o =>
             {
                 o.WithTitle("LinCtrl API");

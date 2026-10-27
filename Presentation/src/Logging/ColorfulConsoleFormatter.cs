@@ -13,28 +13,10 @@ namespace Presentation.src.Logging
             _options = options;
         }
 
-        /// <summary>
-        /// The name used to identify the Toolkit console formatter.
-        /// </summary>
         public const string FormatterName = "Toolkit";
 
         private readonly IOptionsMonitor<ColorfulConsoleFormatterOptions> _options;
 
-        /// <summary>
-        /// Writes a log entry to the specified text writer.
-        /// </summary>
-        /// <typeparam name="TState">
-        /// The type of the log entry state.
-        /// </typeparam>
-        /// <param name="logEntry">
-        /// The log entry to write.
-        /// </param>
-        /// <param name="scopeProvider">
-        /// The provider used to access the current logging scopes.
-        /// </param>
-        /// <param name="textWriter">
-        /// The writer to which the formatted log entry is written.
-        /// </param>
         public override void Write<TState>(
             in LogEntry<TState> logEntry,
             IExternalScopeProvider? scopeProvider,
