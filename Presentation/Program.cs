@@ -13,6 +13,9 @@ namespace Presentation
 
             builder.AddPluginInfrastructure();
 
+            if (IsOpenApiEnabled(builder.Configuration))
+                builder.Services.AddOpenApi();
+            
             builder.Logging.ConfigureLogging();
 
             builder.Services
@@ -26,12 +29,17 @@ namespace Presentation
             app.UseAuthorization();
 
             await app.LoadPluginsAsync();
-            app.AddHandlers();
+            app.MapHandlers();
 
-            if (app.Environment.IsDevelopment())
+            if (IsOpenApiEnabled(app.Configuration))
                 app.ConfigureScalarApiReference(builder.Configuration);
 
             app.Run();
         }
+
+        private static bool IsOpenApiEnabled(IConfiguration configuration)
+            => configuration["OpenApi:IsEnabled"] is var openApiEnabledStr
+                && Convert.ToBoolean(openApiEnabledStr) is var isOpenApiEnabled
+                && isOpenApiEnabled;
     }
 }
