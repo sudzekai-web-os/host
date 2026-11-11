@@ -1,45 +1,42 @@
 using Presentation.src.Extensions.LoggingBuilder;
 using Presentation.src.Extensions.ServiceCollection;
-using Presentation.src.Extensions.WebApplication;
-using Sudzekai.WebOs.Hosting;
+using Scalar.AspNetCore;
+using Sudzekai.LinCtrl.Hosting;
 
 namespace Presentation
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             var builder = WebApplication.CreateSlimBuilder(args);
 
-            builder.AddPluginInfrastructure();
+            var portSetting = builder.Configuration["LinCtrl:Port"] ?? "5199";
+            if (!int.TryParse(portSetting, out var port) || port is < 1 or > 65535)
+                throw new InvalidOperationException("LinCtrl:Port must be an integer between 1 and 65535");
 
-            if (IsOpenApiEnabled(builder.Configuration))
-                builder.Services.AddOpenApi();
-            
+            builder.Configuration["LinCtrl:Port"] = portSetting;
+            builder.WebHost.ConfigureKestrel(options => options.ListenLocalhost(port));
             builder.Logging.ConfigureLogging();
+            builder.AddLinCtrlInfrastructure();
 
-            builder.Services
-                .ConfigureAuthentication(builder.Configuration)
-                .ConfigureRateLimiting()
-                .ConfigureOpenApi();
+            var openApiEnabled = builder.Configuration.GetValue<bool>("OpenApi:IsEnabled");
+            if (openApiEnabled)
+                builder.Services.ConfigureOpenApi();
 
             var app = builder.Build();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+            app.MapLinCtrlInfrastructure();
+            app.LoadPlugins();
+            app.InitializePlugins();
 
-            await app.LoadPluginsAsync();
-            app.MapHandlers();
-
-            if (IsOpenApiEnabled(app.Configuration))
-                app.ConfigureScalarApiReference(builder.Configuration);
+            if (openApiEnabled)
+            {
+                app.MapOpenApi();
+                app.MapScalarApiReference(options => options.AddPreferredSecuritySchemes(ServiceCollectionOpenApiExtensions.BearerScheme));
+            }
 
             app.Run();
         }
-
-        private static bool IsOpenApiEnabled(IConfiguration configuration)
-            => configuration["OpenApi:IsEnabled"] is var openApiEnabledStr
-                && Convert.ToBoolean(openApiEnabledStr) is var isOpenApiEnabled
-                && isOpenApiEnabled;
     }
 }
