@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging.Console;
 using Presentation.src.Types.Enums;
-using System.Drawing;
 
 namespace Presentation.src.Logging
 {

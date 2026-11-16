@@ -1,6 +1,7 @@
 using Presentation.src.Extensions.LoggingBuilder;
 using Presentation.src.Extensions.ServiceCollection;
 using Scalar.AspNetCore;
+using System.Net;
 using Sudzekai.LinCtrl.Hosting;
 
 namespace Presentation
@@ -16,7 +17,16 @@ namespace Presentation
                 throw new InvalidOperationException("LinCtrl:Port must be an integer between 1 and 65535");
 
             builder.Configuration["LinCtrl:Port"] = portSetting;
-            builder.WebHost.ConfigureKestrel(options => options.ListenLocalhost(port));
+            var listenAddress = builder.Configuration["LinCtrl:ListenAddress"];
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                if (string.IsNullOrWhiteSpace(listenAddress))
+                    options.ListenLocalhost(port);
+                else if (IPAddress.TryParse(listenAddress, out var address))
+                    options.Listen(address, port);
+                else
+                    throw new InvalidOperationException("LinCtrl:ListenAddress must be an IP address");
+            });
             builder.Logging.ConfigureLogging();
             builder.AddLinCtrlInfrastructure();
 
